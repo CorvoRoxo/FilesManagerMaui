@@ -4,29 +4,32 @@
              x:Class="FilesManagerMaui.MainPage"
              xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
              xmlns:local="clr-namespace:FilesManagerMaui"
+             xmlns:customViews="clr-namespace:FilesManagerMaui.CustomViews"
              >
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0">
-            <Entry x:Name="CurrentDirectoryEntry" Text="C:\Users\win10\Desktop" TextChanged="CurrentDirectoryEntry_TextChanged"/>
+    <VerticalStackLayout Padding="5">
+        <Entry x:Name="CurrentDirectoryEntry" Text="C:\Users\win10\Desktop" TextChanged="CurrentDirectoryEntry_TextChanged"/>
 
-            <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.DirectoriesInFolder}}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="io:DirectoryInfo">
-                        <Label Text="{Binding Name}"/>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+        <ScrollView MaximumHeightRequest="600">
+            <VerticalStackLayout>
+                <Button Text=".." Clicked="PreviousDirectory_ButtonClicked"/>
 
-            <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.FilesInFolder}}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="io:FileInfo">
-                        <Label Text="{Binding Name}"/>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+                <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.DirectoriesInFolder}}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="io:DirectoryInfo">
+                            <customViews:DirectoryView />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
 
+                <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.FilesInFolder}}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="io:FileInfo">
+                            <customViews:FileView />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </VerticalStackLayout>
 </ContentPage>

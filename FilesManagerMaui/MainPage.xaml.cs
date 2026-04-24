@@ -9,6 +9,11 @@ namespace FilesManagerMaui
         public MainPage()
         {
             InitializeComponent();
+
+            FilesManager.CurrentDirectoryChanged += (s, e) =>
+            {
+                CurrentDirectoryEntry.Text = e.NewDirectory.FullName;
+            };
         }
 
         private void CurrentDirectoryEntry_TextChanged(object sender, TextChangedEventArgs e)
@@ -21,6 +26,14 @@ namespace FilesManagerMaui
 
             FilesManager.CurrentDirectory = new(Path);
             Debug.WriteLine($"New Directory Open: {Path}");
+        }
+
+        private void PreviousDirectory_ButtonClicked(object sender, EventArgs e)
+        {
+            if (FilesManager.CurrentDirectory.Parent == null)
+                return;
+
+            FilesManager.CurrentDirectory = FilesManager.CurrentDirectory.Parent;
         }
     }
 }

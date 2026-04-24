@@ -71,4 +71,22 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="CustomViews\DirectoryView.xaml.cs">
+	    <DependentUpon>DirectoryView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="CustomViews\FileView.xaml.cs">
+	    <DependentUpon>FileView.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="CustomViews\DirectoryView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="CustomViews\FileView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>
