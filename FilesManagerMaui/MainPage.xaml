@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FilesManagerMaui.MainPage"
+             xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
+             xmlns:local="clr-namespace:FilesManagerMaui"
+             >
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0">
+            <Entry x:Name="CurrentDirectoryEntry" Text="C:\Users\win10\Desktop" TextChanged="CurrentDirectoryEntry_TextChanged"/>
+
+            <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.DirectoriesInFolder}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="io:DirectoryInfo">
+                        <Label Text="{Binding Name}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.FilesInFolder}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="io:FileInfo">
+                        <Label Text="{Binding Name}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
