@@ -1,35 +1,54 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="FilesManagerMaui.MainPage"
-             xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
              xmlns:local="clr-namespace:FilesManagerMaui"
-             xmlns:customViews="clr-namespace:FilesManagerMaui.CustomViews"
-             >
+			 xmlns:customViews="clr-namespace:FilesManagerMaui.CustomViews"
+             xmlns:classes="clr-namespace:FilesManagerMaui.Classes"
+             x:Class="FilesManagerMaui.MainPage"
+             xmlns:io="clr-namespace:System.IO;assembly=System.Runtime">
+    <ContentPage.Resources>
+        <DataTemplate x:Key="DirectoryTemplate" x:DataType="classes:DirectoryItem">
+            <customViews:DirectoryView DirectoryItem="{Binding .}"/>
+        </DataTemplate>
 
-    <VerticalStackLayout Padding="5">
-        <Entry x:Name="CurrentDirectoryEntry" Text="C:\Users\win10\Desktop" TextChanged="CurrentDirectoryEntry_TextChanged"/>
+        <DataTemplate x:Key="FileTemplate" x:DataType="io:FileInfo">
+            <customViews:FileView />
+        </DataTemplate>
 
-        <ScrollView MaximumHeightRequest="600">
-            <VerticalStackLayout>
-                <Button Text=".." Clicked="PreviousDirectory_ButtonClicked"/>
+        <classes:DirectoriesAndFilesTemplateSelector x:Key="DirectoriesAndFilesSelector"
+                                                     DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                                                     FileTemplate="{StaticResource FileTemplate}"/>
+    </ContentPage.Resources>
 
-                <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.DirectoriesInFolder}}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="io:DirectoryInfo">
-                            <customViews:DirectoryView />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+    <Grid ColumnSpacing="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-                <CollectionView ItemsSource="{Binding Source={x:Static local:FilesManager.FilesInFolder}}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="io:FileInfo">
-                            <customViews:FileView />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
-    </VerticalStackLayout>
+        <!-- Root Files -->
+        <Grid ColumnSpacing="25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <customViews:FilesManagerView x:Name="RootFilesManagerView"
+                                      FilesManager="{Binding RootFilesManager}"
+                                      DirectoryTapped="RootFilesManagerView_DirectoryTapped"
+                                      HierarchicalMode="True">
+            </customViews:FilesManagerView>
+
+            <BoxView Grid.Column="1" WidthRequest="12" BackgroundColor="Gray" ZIndex="25">
+                <BoxView.GestureRecognizers>
+                    <PanGestureRecognizer PanUpdated="RootFilesManager_PanUpdated"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+        </Grid>
+
+        <!-- Internal Files -->
+        <customViews:FilesManagerView FilesManager="{Binding InternalFilesManager}"
+                                      TapsRequiredToOpenDirectory="2"
+                                      Grid.Column="1"/>
+    </Grid>
 </ContentPage>

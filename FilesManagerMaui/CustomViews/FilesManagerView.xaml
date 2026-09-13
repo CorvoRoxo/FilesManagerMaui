@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:FilesManagerMaui.CustomViews"
+             xmlns:customViews="clr-namespace:FilesManagerMaui.CustomViews"
+             xmlns:classes="clr-namespace:FilesManagerMaui.Classes"
+             xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
+             x:Class="FilesManagerMaui.CustomViews.FilesManagerView">
+    <ContentView.Resources>
+        <DataTemplate x:Key="DirectoryTemplate" x:DataType="classes:DirectoryItem">
+            <customViews:DirectoryView DirectoryItem="{Binding .}"
+                                       HierarchicalMode="{Binding HierarchicalMode, Source={RelativeSource AncestorType={x:Type customViews:FilesManagerView}}}"
+                                       TapsRequiredToBeOpen="{Binding TapsRequiredToOpenDirectory, Source={RelativeSource AncestorType={x:Type customViews:FilesManagerView}}}">
+            </customViews:DirectoryView>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileTemplate" x:DataType="io:FileInfo">
+            <customViews:FileView />
+        </DataTemplate>
+
+        <classes:DirectoriesAndFilesTemplateSelector x:Key="DirectoriesAndFilesTemplate"
+                                                     DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                                                     FileTemplate="{StaticResource FileTemplate}"/>
+    </ContentView.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <VerticalStackLayout>
+            <Entry Text="{Binding FilesManager.CurrentDirectory.DirectoryInfo.FullName, Source={RelativeSource AncestorType={x:Type local:FilesManagerView}}}"
+                   TextChanged="Entry_TextChanged"/>
+
+            <HorizontalStackLayout Spacing="6">
+                <Border StrokeThickness="2"
+                    WidthRequest="45" HeightRequest="25"
+                    HorizontalOptions="Start"
+                    Shadow="3 3 2 #7A000000">
+                    <Border.StrokeShape>
+                        <RoundRectangle Aspect="Fill"  CornerRadius="8"/>
+                    </Border.StrokeShape>
+
+                    <Border.Stroke>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <GradientStopCollection>
+                                <GradientStop Color="#7AFFFFFF" Offset="0"/>
+                                <GradientStop Color="#7A000000" Offset="1"/>
+                            </GradientStopCollection>
+                        </LinearGradientBrush>
+                    </Border.Stroke>
+
+                    <Button Text="&lt;" TextColor="#808080"
+                        FontAttributes="Bold"
+                        Padding="5" MinimumHeightRequest="0" MinimumWidthRequest="0"
+                        Clicked="Back_ButtonClicked">
+
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <GradientStopCollection>
+                                    <GradientStop Color="{AppThemeBinding Dark='#6A000000', Light='#ECECEC'}" Offset="0.5"/>
+                                    <GradientStop Color="{AppThemeBinding Dark='#6A000000', Light='#C2C2C2'}" Offset="1"/>
+                                </GradientStopCollection>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                </Border>
+
+                <Border StrokeThickness="2"
+                        WidthRequest="45" HeightRequest="25"
+                        HorizontalOptions="Start"
+                        Shadow="3 3 2 #7A000000">
+                    <Border.StrokeShape>
+                        <RoundRectangle Aspect="Fill"  CornerRadius="8"/>
+                    </Border.StrokeShape>
+
+                    <Border.Stroke>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <GradientStopCollection>
+                                <GradientStop Color="#7AFFFFFF" Offset="0"/>
+                                <GradientStop Color="#7A000000" Offset="1"/>
+                            </GradientStopCollection>
+                        </LinearGradientBrush>
+                    </Border.Stroke>
+
+                    <Button Text="&gt;" TextColor="#808080"
+                            FontAttributes="Bold"
+                            Padding="5" MinimumHeightRequest="0" MinimumWidthRequest="0"
+                            IsEnabled="False"
+                            Clicked="Back_ButtonClicked">
+
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <GradientStopCollection>
+                                    <GradientStop Color="{AppThemeBinding Dark='#6A000000', Light='#ECECEC'}" Offset="0.5"/>
+                                    <GradientStop Color="{AppThemeBinding Dark='#6A000000', Light='#C2C2C2'}" Offset="1"/>
+                                </GradientStopCollection>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                </Border>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+        
+        <CollectionView ItemsSource="{Binding FilesManager.CurrentDirectory.CurrentDirectoriesAndFilesInside, Source={RelativeSource AncestorType={x:Type local:FilesManagerView}}}"
+                        ItemTemplate="{StaticResource DirectoriesAndFilesTemplate}"
+                        SelectionMode="Single" SelectionChanged="CollectionView_SelectionChanged"
+                        Margin="12, 0, 0, 0" Grid.Row="1"/>
+    </Grid>
+</ContentView>

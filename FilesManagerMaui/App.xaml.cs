@@ -7,6 +7,7 @@ namespace FilesManagerMaui
         public App()
         {
             InitializeComponent();
+            this.UserAppTheme = AppTheme.Dark;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

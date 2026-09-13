@@ -5,10 +5,19 @@
              xmlns:io="clr-namespace:System.IO;assembly=System.RunTime"
              
              x:DataType="io:FileInfo">
-    <Grid ColumnDefinitions="1*, 1*, 1*, 1*">
-        <Label Text="{Binding Name}"/>
-        <Label Text="{Binding CreationTime}" HorizontalOptions="Center" Grid.Column="1"/>
-        <Label Text="{Binding Length}" HorizontalOptions="Center" Grid.Column="2"/>
-        <Label Text="{Binding Extension}" HorizontalOptions="Center" Grid.Column="3"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Image Source="file_icon.png"
+               WidthRequest="35"
+               HeightRequest="35"
+               VerticalOptions="Start"/>
+
+        <Label Text="{Binding Name}"
+               FontFamily="GeistPixelRegular"
+               Grid.Column="1" VerticalOptions="Center" LineBreakMode="NoWrap"/>
     </Grid>
 </ContentView>

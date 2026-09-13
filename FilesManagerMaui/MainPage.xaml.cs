@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using FilesManagerMaui.Classes;
+using FilesManagerMaui.CustomViews;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -6,34 +8,45 @@ namespace FilesManagerMaui
 {
     public partial class MainPage : ContentPage
     {
+        private double RootFilesManagerView_StartWidth = 0;
+
+        public FilesManager RootFilesManager { get; set; } = new();
+        public FilesManager InternalFilesManager { get; set; } = new();
+
         public MainPage()
         {
             InitializeComponent();
+            this.BindingContext = this;
+            
+            if (RootFilesManager.CurrentDirectory is not null)
+                RootFilesManager.CurrentDirectory.SetFilesAndDirectoriesInDirectory();
 
-            FilesManager.CurrentDirectoryChanged += (s, e) =>
+            FilesManagerEventBus.OnNewDirectoryOpened += (object? sender, DirectoryItem NewDirectoryItem) =>
             {
-                CurrentDirectoryEntry.Text = e.NewDirectory.FullName;
+                OpenNewDirectoryOnInternalFilesManager(NewDirectoryItem);
             };
         }
 
-        private void CurrentDirectoryEntry_TextChanged(object sender, TextChangedEventArgs e)
+        private void RootFilesManagerView_DirectoryTapped(object sender, DirectoryTappedEventArgs e)
         {
-            string Path = ((Entry)sender).Text ?? @"";
-            DirectoryInfo DirectoryPath = new(Path);
-
-            if (!Directory.Exists(Path))
-                return;
-
-            FilesManager.CurrentDirectory = new(Path);
-            Debug.WriteLine($"New Directory Open: {Path}");
+            InternalFilesManager.OpenDirectory(e.PathOpened ?? "");
         }
 
-        private void PreviousDirectory_ButtonClicked(object sender, EventArgs e)
+        private void OpenNewDirectoryOnInternalFilesManager(DirectoryItem NewDirectoryItem)
         {
-            if (FilesManager.CurrentDirectory.Parent == null)
-                return;
+            InternalFilesManager.OpenDirectory(NewDirectoryItem.DirectoryInfo.FullName);
+        }
 
-            FilesManager.CurrentDirectory = FilesManager.CurrentDirectory.Parent;
+        private void RootFilesManager_PanUpdated(object sender, PanUpdatedEventArgs e)
+        {
+            if (e.StatusType == GestureStatus.Started)
+                RootFilesManagerView_StartWidth = RootFilesManagerView.Width;
+
+            else if (e.StatusType == GestureStatus.Running)
+            {
+                double NewWidth = RootFilesManagerView_StartWidth + e.TotalX;
+                RootFilesManagerView.WidthRequest = NewWidth;
+            }
         }
     }
 }

@@ -1,18 +1,130 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="FilesManagerMaui.CustomViews.DirectoryView"
+             xmlns:customViews="clr-namespace:FilesManagerMaui.CustomViews"
              xmlns:io="clr-namespace:System.IO;assembly=System.RunTime"
-             
-             x:DataType="io:DirectoryInfo">
+             x:Class="FilesManagerMaui.CustomViews.DirectoryView"
+             xmlns:classes="clr-namespace:FilesManagerMaui.Classes">
+    <ContentView.GestureRecognizers>
+        <TapGestureRecognizer Tapped="Directory_Tapped" NumberOfTapsRequired="{Binding TapsRequiredToBeOpen, Source={RelativeSource AncestorType={x:Type customViews:DirectoryView}}}"/>
+    </ContentView.GestureRecognizers>
+    
+    <VisualStateManager.VisualStateGroups>
+        <VisualStateGroupList>
+            <VisualStateGroup Name="CommonStates">
+                <VisualState Name="Normal">
+                    <VisualState.Setters>
+                        <Setter Property="Background" Value="Transparent"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState Name="Selected">
+                    <VisualState.Setters>
+                        <Setter TargetName="FolderTitleContainer" Property="Background">
+                            <Setter.Value>
+                                <RadialGradientBrush Center=".35, .2" Radius=".75">
+                                    <GradientStopCollection>
+                                        <GradientStop Color="{AppThemeBinding Light='#CECECE', Dark='#00000000'}" Offset="{AppThemeBinding Light='1', Dark='.65'}"/>
+                                        <GradientStop Color="{AppThemeBinding Light='White', Dark='#0fffffff'}" Offset="{AppThemeBinding Light='.65', Dark='1'}"/>
+                                    </GradientStopCollection>
+                                </RadialGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateGroupList>
+    </VisualStateManager.VisualStateGroups>
+
+    <ContentView.Resources>
+        <DataTemplate x:Key="DirectoryInfoTemplate" x:DataType="classes:DirectoryItem">
+            <customViews:DirectoryView DirectoryItem="{Binding .}"
+                                       HierarchicalMode="{Binding HierarchicalMode, Source={RelativeSource AncestorType={x:Type customViews:DirectoryView}}}">
+            </customViews:DirectoryView>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileTemplate" x:DataType="io:FileInfo">
+            <customViews:FileView />
+        </DataTemplate>
+
+        <classes:DirectoriesAndFilesTemplateSelector x:Key="DirectoriesAndFilesTemplate"
+                                                     DirectoryTemplate="{StaticResource DirectoryInfoTemplate}"
+                                                     FileTemplate="{StaticResource FileTemplate}"/>
+    </ContentView.Resources>
+    
     <Grid>
-        <Grid ColumnDefinitions="1*, 1*, 1*, 1*">
-            <Label Text="{Binding Name}"/>
-            <Label Text="{Binding CreationTime}" HorizontalOptions="Center" Grid.Column="1"/>
-            <Label Text="{Binding Length}" HorizontalOptions="Center" Grid.Column="2"/>
-            <Label Text="{Binding Extension}" HorizontalOptions="Center" Grid.Column="3"/>
-        </Grid>
-        
-        <Button BackgroundColor="#A0000000" Padding="0" CornerRadius="0" MinimumHeightRequest="0" MinimumWidthRequest="0" Clicked="Button_Clicked"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="FolderTitleContainer"
+                Grid.Column="1"
+                StrokeShape="RoundRectangle 24" Stroke="Transparent"
+                Padding="5, 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Source="folder_icon.png"
+                       WidthRequest="35" HeightRequest="35" VerticalOptions="Start"/>
+
+                <Label Text="{Binding DirectoryItem.CustomTitle, Source={RelativeSource AncestorType={x:Type customViews:DirectoryView}}}"
+                       FontFamily="GeistPixelRegular" LineBreakMode="NoWrap"
+                       VerticalTextAlignment="Start"
+                       VerticalOptions="Center" Grid.Column="1"/>
+            </Grid>
+        </Border>
+
+        <CollectionView x:Name="HierarchicalCollectionView"
+                        ItemsSource="{Binding DirectoryItem.CurrentDirectoriesAndFilesInside, Source={RelativeSource AncestorType={x:Type customViews:DirectoryView}}}"
+                        ItemTemplate="{StaticResource DirectoriesAndFilesTemplate}"
+                        SelectionMode="Single" SelectionChanged="HierarchicalCollectionView_SelectionChanged"
+                        IsVisible="False"
+                        Margin="12, 0, 12, 0" MaximumHeightRequest="455"
+                        Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Always"/>
+
+        <Border StrokeThickness="2"
+                WidthRequest="20" HeightRequest="20"
+                VerticalOptions="Center"
+                Shadow="3 3 2 #7A000000"
+                IsVisible="{Binding HierarchicalMode, Source={RelativeSource AncestorType={x:Type customViews:DirectoryView}}}">
+            
+            <Border.StrokeShape>
+                <RoundRectangle Aspect="Fill"  CornerRadius="20"/>
+            </Border.StrokeShape>
+            
+            <Border.Stroke>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                    <GradientStopCollection>
+                        <GradientStop Color="#7AFFFFFF" Offset="0"/>
+                        <GradientStop Color="#7A000000" Offset="1"/>
+                    </GradientStopCollection>
+                </LinearGradientBrush>
+            </Border.Stroke>
+
+            <Button x:Name="ShowHierarchicListButton"
+                    Text="+" TextColor="Gray" 
+                    Clicked="ShowHierarchicList_ButtonClicked"
+                    WidthRequest="17" HeightRequest="17"
+                    MinimumHeightRequest="0" MinimumWidthRequest="0" Padding="0">
+                
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <GradientStopCollection>
+                            <GradientStop Color="{AppThemeBinding Dark='#6A000000', Light='#ECECEC'}" Offset="0.5"/>
+                            <GradientStop Color="{AppThemeBinding Dark='#6A000000', Light='#C2C2C2'}" Offset="1"/>
+                        </GradientStopCollection>
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
+        </Border>
     </Grid>
 </ContentView>
